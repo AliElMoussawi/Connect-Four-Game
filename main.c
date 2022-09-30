@@ -3,7 +3,7 @@
 
 //function prototypes
 
-void startGame();
+void  startGame();
 void getInfo();
 void displayBoard();
 int verifySelection(int,int);
@@ -19,19 +19,38 @@ int currentPlayer = 0;
 //begin main function
 int main() {
     getInfo();
+
+    printf("\n%s, you take Y",name[0]);
+    printf("\n%s, you take X\n",name[1]);
+    displayBoard();
+
     return;}
 
 void displayBoard() {
+
+    printf("\t\t\t\t\t-------------\n");
+       int i,j;
+    for(i=0;i<7;i++){
+            printf("\t\t\t\t\t");
+      for(j=0;j<6;j++)
+      {
+	      //printf("element - [%d],[%d] : ",i,j);
+
+	      printf("|%d",board[i][j]);
+	      }
+	      printf("|\n");     }
+    printf("\t\t\t\t\t-------------\n");
 return 0;
-};
+
+}
 void startGame(){
 
 return 0;}
 int verifySelection(int square, int player) {
     return 0;
 }
-void getInfo(){
-    printf("Only Multi-player is allowed in  this game\n");
+void getInfo(){//get players info
+    printf("Only Multi-player game is allowed in  this version\n");
     printf("Enter Player 1 name: ");
     scanf("%s", &name[0]);
     printf("Enter Player 2 name: ");
