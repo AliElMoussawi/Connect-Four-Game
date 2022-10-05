@@ -33,8 +33,7 @@ do{
     displayBoard();
 
   do {
-        enum player temp = P_ONE;
-            printf("%d",temp);
+
 			printf("[1] Play game\n");
 			printf("[0] Exit\n");
 			printf("-> ");
@@ -55,16 +54,17 @@ do{
 	 printf("please enter value between 1 and 7:");
 	 scanf("%d",&value);
 	 printf("please %d",value );
-	 board[5][1]='1';
-	 board[4][1]='1';
-	 printf("value: %d",checkTaken(value));
-	 displayBoard();
-	 placePiece(checkTaken(value));
-	 displayBoard();
+	// board[5][1]='1';
+	 //board[4][1]='1';
+	// printf("value: %d",checkTaken(value));
+	// displayBoard();
+	// placePiece('R',value,checkTaken(value));
+	 //displayBoard();
+	 gameController();
 	}
 		}while(input != 0);
 
-	printf("\nTHANK YOU FOR PLAYING TIK TAK TOE!\n");
+	printf("\nTHANK YOU FOR PLAYING Connect Four !\n");
 
     return 0 ;}
 
@@ -82,9 +82,11 @@ int checkTaken( int x) {
         if(board[y][x]!='0'){y--;}
         else{return y; }
     }while(y>0);//if y is 6 the function will return -1 and the programmer will recall it from another x
-    return -1;}
-void placePiece(char **board, char character, int x, int y) {
-	board[(y - 1)][(x - 1)] = character;
+    return -1;
+}
+
+void placePiece(char character, int x, int y) {
+	board[(y )][(x-1)] = character;
 }
 // display the game for players
 void displayBoard() {
@@ -123,19 +125,19 @@ enum player switchPlayer(enum player playerTurn) {
 	return temp;
 }
 
-/*
+
 
 //This is the function that will be called to start the game
 void gameController(void) {
 	enum player playerTurn = P_ONE;
 	int winner = -1;
 	int counter = 0;
-	resetBoard(board);
+	resetBoard();
 
 	do {
 		displayBoard();
-		makeTurn(board, playerTurn);
-		winner = checkWonGame(board, playerTurn);
+		makeTurn(playerTurn);
+		//winner = checkWonGame(board, playerTurn);
 
 		if(winner == -1) {
 			playerTurn = switchPlayer(playerTurn);
@@ -164,7 +166,7 @@ void checkForFour(){
 }
 
 //Function for getting input from keyboard to make a player place a piece
-void makeTurn(char **board, enum player playerTurn) {
+void makeTurn(enum player playerTurn) {
 	printf("| Player %d |\n", (playerTurn + 1));
 	int validPos = 0;
 	int xCord = -1;
@@ -182,14 +184,14 @@ void makeTurn(char **board, enum player playerTurn) {
 		}
 		} while(xCord < 1 || xCord > 7);
 
-		validPos = checkTaken(board, xCord);
+		validPos = checkTaken(xCord-1);
 
-		if(validPos != 1) {
-			printf("SORRY THIS POSITION IS TAKEN TRY AGAIN!\n");
+		if(validPos ==-1) {
+			printf("SORRY THIS ROW IS FULL TRY ANOTHER ONE!\n");
 		}
-	} while(validPos != 1);
+	} while(validPos ==-1);
 
-	printf("Placing \"%c\" at position (%d)\n", characters[playerTurn], xCord);
-    placePiece(board, characters[playerTurn], xCord, validPos);
+	printf("Placing \"%c\" at position (%d)(%d)\n", characters[playerTurn], xCord,validPos);
+    placePiece(characters[playerTurn], xCord, validPos);
 }
-*/
+
