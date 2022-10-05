@@ -29,12 +29,12 @@ do{
     printf("\t\t\t\t\t\t");
 
     for(i=0;i<17;i++)printf("%c",223);
+    resetBoard();
     displayBoard();
-    getInfo();
-    printf("\n\t%s, you have been given R",name[0]);
-    printf("\t\t\t\t\t%s, you have been given Y\n",name[1]);
-    printf("start the game with %s \n",name[0]);
-    do {
+
+  do {
+        enum player temp = P_ONE;
+            printf("%d",temp);
 			printf("[1] Play game\n");
 			printf("[0] Exit\n");
 			printf("-> ");
@@ -43,30 +43,45 @@ do{
 			if(input < 0 || input > 1) {
 				printf("INVALID INPUT PLEASE TRY AGAIN!\n");
 			}
-		} while(input < 0 || input > 1);
+		}while(input < 0 || input > 1);
 
 		if(input == 1) {
 			printf("+----------+\n");
-			gameController();
-		}
-
-	} while(input != 0);
+			 getInfo();
+    printf("\n\t%s, you have been given R",name[0]);
+    printf("\t\t\t\t\t%s, you have been given Y\n",name[1]);
+    printf("start the game with %s \n",name[0]);
+	 //	gameController();
+	 printf("please enter value between 1 and 7:");
+	 scanf("%d",&value);
+	 printf("please %d",value );
+	 board[5][1]='1';
+	 board[4][1]='1';
+	 printf("value: %d",checkTaken(value));
+	 displayBoard();
+	 placePiece(checkTaken(value));
+	 displayBoard();
+	}
+		}while(input != 0);
 
 	printf("\nTHANK YOU FOR PLAYING TIK TAK TOE!\n");
+
     return 0 ;}
-void resetBoard(char **board) {
+
+
+void resetBoard() {
 	for(int i = 0; i < 6; i++) {
 		for(int j = 0; j < 7; j++) {
 			board[i][j] = '0';
 		}
 	}
 }
-int checkTaken(char **board, int x) {
-   int y=0;
+int checkTaken( int x) {
+   int y=5;
     do{
-        if(board[y][x]!='0'){y++;}
+        if(board[y][x]!='0'){y--;}
         else{return y; }
-    }while(y<6);//if y is 6 the function will return -1 and the programmer will recall it from another x
+    }while(y>0);//if y is 6 the function will return -1 and the programmer will recall it from another x
     return -1;}
 void placePiece(char **board, char character, int x, int y) {
 	board[(y - 1)][(x - 1)] = character;
@@ -80,19 +95,11 @@ void displayBoard() {
             printf("\t\t\t\t\t\t ");
       for(j=0;j<7;j++)
       {
-	      printf("|%d",board[i][j]);
+	      printf("|%c",board[i][j]);
 	      }
 	      printf("|\n");     }
     printf("\t\t\t\t\t\t  -------------\n");
 return 0;
-}
-enum player switchPlayer(enum player playerTurn) {
-	if(playerTurn == 0) {
-		enum player temp = P_TWO;
-		return temp;
-	}
-	enum player temp = P_ONE;
-	return temp;
 }
 void getInfo(){//get players info
     printf("Welcome To Connect Four Game\n");
@@ -105,6 +112,18 @@ void getInfo(){//get players info
     printf("Player 1: %s\nPlayer 2: %s",&name[0],&name[1]);
     return 0;
 }
+
+enum player switchPlayer(enum player playerTurn) {
+	if(playerTurn == 0) {
+		enum player temp = P_TWO;
+
+		return temp;
+	}
+	enum player temp = P_ONE;
+	return temp;
+}
+
+/*
 
 //This is the function that will be called to start the game
 void gameController(void) {
@@ -173,3 +192,4 @@ void makeTurn(char **board, enum player playerTurn) {
 	printf("Placing \"%c\" at position (%d)\n", characters[playerTurn], xCord);
     placePiece(board, characters[playerTurn], xCord, validPos);
 }
+*/
