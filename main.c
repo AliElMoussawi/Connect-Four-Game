@@ -14,10 +14,7 @@ void displayBoard();
 //global variables
 char board[6][7];
 char name[2][30]; //double dimensional array to store names of the player
-int player; //to store the chance, to track which player is to enter the move
 char gameOptions[2][40]={"Multi-player","alone"};// here we want to specify the option that play can game offer
-int currentPlayer = 1;
-int game_playing =1;
 int value=0;
 
 //begin main function
@@ -141,12 +138,13 @@ void gameController(void) {
 	displayBoard();
 
 	if(winner == -1) {
+
 		printf("+-----------+\n");
 		printf("| NO WINNER |\n");
 		printf("+-----------+\n");
 	} else {
 		printf("+-----------------+\n");
-		printf("| WINNER PLAYER %d |\n", (playerTurn + 1));
+		printf("| WINNER PLAYER %d |\n", name[(playerTurn + 1)]);
 	       	printf("+-----------------+\n");
 	}
 
