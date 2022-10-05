@@ -12,7 +12,7 @@ enum player {
 void getInfo();
 void displayBoard();
 //global variables
-char board[7][6];
+char board[6][7];
 char name[2][30]; //double dimensional array to store names of the player
 int player; //to store the chance, to track which player is to enter the move
 char gameOptions[2][40]={"Multi-player","alone"};// here we want to specify the option that play can game offer
@@ -50,16 +50,6 @@ do{
     printf("\n\t%s, you have been given R",name[0]);
     printf("\t\t\t\t\t%s, you have been given Y\n",name[1]);
     printf("start the game with %s \n",name[0]);
-	 //	gameController();
-	 printf("please enter value between 1 and 7:");
-	 scanf("%d",&value);
-	 printf("please %d",value );
-	// board[5][1]='1';
-	 //board[4][1]='1';
-	// printf("value: %d",checkTaken(value));
-	// displayBoard();
-	// placePiece('R',value,checkTaken(value));
-	 //displayBoard();
 	 gameController();
 	}
 		}while(input != 0);
@@ -81,7 +71,7 @@ int checkTaken( int x) {
     do{
         if(board[y][x]!='0'){y--;}
         else{return y; }
-    }while(y>0);//if y is 6 the function will return -1 and the programmer will recall it from another x
+    }while(y>=0);//if y is 6 the function will return -1 and the programmer will recall it from another x
     return -1;
 }
 
@@ -99,7 +89,8 @@ void displayBoard() {
       {
 	      printf("|%c",board[i][j]);
 	      }
-	      printf("|\n");     }
+	      printf("|\n");
+	      }
     printf("\t\t\t\t\t\t  -------------\n");
 return 0;
 }
@@ -172,7 +163,6 @@ void makeTurn(enum player playerTurn) {
 	int xCord = -1;
 	//Getting the character to be placed;
 	char characters[3] = {'R', 'Y', '\0'};
-
 	do {
 		//input validation for X cord
 		do {
@@ -185,7 +175,6 @@ void makeTurn(enum player playerTurn) {
 		} while(xCord < 1 || xCord > 7);
 
 		validPos = checkTaken(xCord-1);
-
 		if(validPos ==-1) {
 			printf("SORRY THIS ROW IS FULL TRY ANOTHER ONE!\n");
 		}
