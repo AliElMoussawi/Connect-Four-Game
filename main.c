@@ -30,11 +30,10 @@ do{
     displayBoard();
 
   do {
-
-			printf("[1] Play game\n");
-			printf("[0] Exit\n");
-			printf("-> ");
-			scanf("%d", &input);
+        printf("[1] Play game\n");
+        printf("[0] Exit\n");
+        printf("-> ");
+        scanf("%d", &input);
 
 			if(input < 0 || input > 1) {
 				printf("INVALID INPUT PLEASE TRY AGAIN!\n");
@@ -118,7 +117,7 @@ enum player switchPlayer(enum player playerTurn) {
 //This is the function that will be called to start the game
 void gameController(void) {
 	enum player playerTurn = P_ONE;
-	int winner = -1;
+    static int winner = -1;
 	int counter = 0;
 	resetBoard();
 
@@ -131,8 +130,11 @@ void gameController(void) {
 			playerTurn = switchPlayer(playerTurn);
 		}
 
-		printf("\n+----------+\n");
+		printf("\n----------+\n");
+		checkForFour();
 		counter++;
+
+
 	} while (winner == -1 && counter < 42);
 
 	displayBoard();
@@ -150,10 +152,19 @@ void gameController(void) {
 
 }
 
-void checkForFour(){
-     return;
+int checkForFour(char* character){
+    int i,j;
+    int countFour=0;
+    for(i=0;i<6;i++){
+        for(j=0;j<7;j++){
+                if(board[i][j]==character){
+                    countFour++;
+                }else{countFour=0;}
+        }
+      }
+    if(countFour==4){return 1;}
+    return -1;
 }
-
 //Function for getting input from keyboard to make a player place a piece
 void makeTurn(enum player playerTurn) {
 	printf("| Player %d |\n", (playerTurn + 1));
@@ -180,5 +191,7 @@ void makeTurn(enum player playerTurn) {
 
 	printf("Placing \"%c\" at position (%d)(%d)\n", characters[playerTurn], xCord,validPos);
     placePiece(characters[playerTurn], xCord, validPos);
+    checkForFour(characters[playerTurn]);
+    winner=1;
 }
 
