@@ -1,4 +1,4 @@
-
+#include <stdbool.h>
 #include <stdio.h>
 #include<stdlib.h>
 //function prototypes
@@ -16,7 +16,7 @@ char board[6][7];
 char name[2][30]; //double dimensional array to store names of the player
 char gameOptions[2][40]={"Multi-player","alone"};// here we want to specify the option that play can game offer
 int value=0;
-
+int winner = -1;
 //begin main function
 int main() {
 int input = 0;
@@ -72,6 +72,7 @@ int checkTaken( int x) {
 }
 
 void placePiece(char character, int x, int y) {
+
 	board[(y )][(x-1)] = character;
 }
 // display the game for players
@@ -117,7 +118,7 @@ enum player switchPlayer(enum player playerTurn) {
 //This is the function that will be called to start the game
 void gameController(void) {
 	enum player playerTurn = P_ONE;
-    static int winner = -1;
+
 	int counter = 0;
 	resetBoard();
 
@@ -131,7 +132,6 @@ void gameController(void) {
 		}
 
 		printf("\n----------+\n");
-		checkForFour();
 		counter++;
 
 
@@ -146,25 +146,19 @@ void gameController(void) {
 		printf("+-----------+\n");
 	} else {
 		printf("+-----------------+\n");
-		printf("| WINNER PLAYER %d |\n", name[(playerTurn + 1)]);
+		printf("| WINNER PLAYER %s |\n", name[playerTurn]);
 	       	printf("+-----------------+\n");
 	}
 
 }
 
-int checkForFour(char* character){
-    int i,j;
-    int countFour=0;
-    for(i=0;i<6;i++){
-        for(j=0;j<7;j++){
-                if(board[i][j]==character){
-                    countFour++;
-                }else{countFour=0;}
-        }
-      }
-    if(countFour==4){return 1;}
-    return -1;
-}
+int checkForFour(int x,int y,char* character){
+    checkVertically(x,y, character);
+
+    }
+
+
+
 //Function for getting input from keyboard to make a player place a piece
 void makeTurn(enum player playerTurn) {
 	printf("| Player %d |\n", (playerTurn + 1));
@@ -191,7 +185,48 @@ void makeTurn(enum player playerTurn) {
 
 	printf("Placing \"%c\" at position (%d)(%d)\n", characters[playerTurn], xCord,validPos);
     placePiece(characters[playerTurn], xCord, validPos);
-    checkForFour(characters[playerTurn]);
-    winner=1;
+   checkVertically(xCord,validPos,characters[playerTurn]);
+   // printf(winner);
 }
 
+void checkVertically(int x,int y,char* character){
+    int counter=0;
+    if(5-y>=3){
+            int j;
+        for(j=y;j<=5;j++){
+                printf("j:%d\n",j);
+
+            if(character==board[j][x-1]){
+                counter++;
+                printf("c:%d",counter);
+    }
+            else{counter=0;}
+            if(counter==4){
+            winner = 1;
+            int winner1=winner;
+         printf("winner :%d",winner1);
+           }}
+   }
+    else{
+            printf("less than 4 ");
+    }
+
+    return 0;}
+    /*
+int checkHorizontally(int x,int y,char* character){
+    int counter=0;
+    int moveX=0;
+    if(x<=4){
+    int i,j=0;
+    while(j!=y){
+            j++;
+    for(i=0;i<4;i++){
+        if(board[y][j+moveX]==character){
+                counter++;}
+        else{counter=0;}
+        }
+    }
+    }
+    return 0;}
+
+*/

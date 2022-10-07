@@ -1,5 +1,6 @@
 # depslib dependency file v1.0
-1665036863 source:c:\dev\connect_four_game\main.c
+1665164326 source:c:\dev\connect_four_game\main.c
+	<stdbool.h>
 	<stdio.h>
 	<stdlib.h>
 
