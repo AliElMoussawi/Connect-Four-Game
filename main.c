@@ -153,7 +153,8 @@ void gameController(void) {
 }
 
 int checkForFour(int x,int y,char* character){
-    checkVertically(x,y, character);
+      checkHorizontally(x,y, character);
+      checkVertically(x,y, character);
 
     }
 
@@ -186,7 +187,6 @@ void makeTurn(enum player playerTurn) {
 	printf("Placing \"%c\" at position (%d)(%d)\n", characters[playerTurn], xCord,validPos);
     placePiece(characters[playerTurn], xCord, validPos);
    checkVertically(xCord,validPos,characters[playerTurn]);
-   // printf(winner);
 }
 
 void checkVertically(int x,int y,char* character){
@@ -194,39 +194,52 @@ void checkVertically(int x,int y,char* character){
     if(5-y>=3){
             int j;
         for(j=y;j<=5;j++){
-                printf("j:%d\n",j);
-
             if(character==board[j][x-1]){
                 counter++;
-                printf("c:%d",counter);
     }
             else{counter=0;}
             if(counter==4){
             winner = 1;
-            int winner1=winner;
-         printf("winner :%d",winner1);
            }}
    }
-    else{
-            printf("less than 4 ");
+    return 0;}
+
+void checkHorizontally(int x,int y,char* character){
+    int counter=0;
+    int i,j=0;
+    int moveX=0;
+    printf("check horizontally");
+    if(x<=4){
+            printf("x is not 4");
+    while(j<=x){
+    for(i=0;i<4;i++){printf("i : %d ", i);
+        if(board[y][j+i]==character){
+                counter++;
+        if(counter==4){
+            winner = 1;}}
+        else{counter=0;}
+       }
+       j++;
     }
 
-    return 0;}
-    /*
-int checkHorizontally(int x,int y,char* character){
-    int counter=0;
-    int moveX=0;
-    if(x<=4){
-    int i,j=0;
-    while(j!=y){
-            j++;
+   }if(x==4){
+        if(board[y][j+i]==character){
+                counter++;}
+        else{counter=0;}
+    }
+
+  else{
+ while(j!=x-6){
     for(i=0;i<4;i++){
-        if(board[y][j+moveX]==character){
+        if(board[y][x-j-i]==character){
                 counter++;}
         else{counter=0;}
         }
+    j++;
     }
     }
+    if(counter==4){
+            winner = 1;
+           }
     return 0;}
 
-*/
