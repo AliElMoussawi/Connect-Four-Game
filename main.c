@@ -1,6 +1,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include<stdlib.h>
+#include <time.h>
+
+
 //function prototypes
 void  startGame();
 //ENUM for signaling what player turn it is
@@ -17,6 +20,8 @@ char name[2][30]; //double dimensional array to store names of the player
 char gameOptions[2][40]={"Multi-player","alone"};// here we want to specify the option that play can game offer
 int value=0;
 int winner = -1;
+char* winnerName[];
+double timer[2] = {0.0,0.0};
 //begin main function
 int main() {
 int input = 0;
@@ -26,7 +31,7 @@ do{
     printf("\t\t\t\t\t\t");
 
     for(i=0;i<17;i++)printf("%c",223);
-    resetBoard();
+    reset();
     displayBoard();
 
   do {
@@ -55,7 +60,12 @@ do{
     return 0 ;}
 
 
-void resetBoard() {
+void reset() {
+    *winnerName="";
+    value=0;
+    winner = -1;
+    timer[0]= 0.0;
+    timer[1]= 0.0;
 	for(int i = 0; i < 6; i++) {
 		for(int j = 0; j < 7; j++) {
 			board[i][j] = '0';
@@ -120,7 +130,7 @@ void gameController(void) {
 	enum player playerTurn = P_ONE;
 
 	int counter = 0;
-	resetBoard();
+	reset();
 
 	do {
 		displayBoard();
@@ -139,29 +149,37 @@ void gameController(void) {
 
 	displayBoard();
 
-	if(winner == -1) {
-
+	if(winner == -1 && timer[0]==timer[1]) {
 		printf("+-----------+\n");
 		printf("| NO WINNER |\n");
 		printf("+-----------+\n");
-	} else {
-		printf("+-----------------+\n");
-		printf("| WINNER PLAYER %s |\n", name[playerTurn]);
-	       	printf("+-----------------+\n");
-	}
 
-}
+	} else {
+	    if(winner == -1 && counter==42 ){
+        if (timer[0]<timer[1]){
+            *winnerName=&name[1];}
+        else if(timer[0]>timer[1]){
+             *winnerName=&name[0];}
+        }
+        else {
+              *winnerName=&name[playerTurn];
+        }
+		printf("+-----------------+\n");
+		printf("| WINNER PLAYER %s |\n",*winnerName);
+        printf("+-----------------+\n");
+	}}
 
 int checkForFour(int x,int y,char* character){
       checkHorizontally(x,y, character);
       checkVertically(x,y, character);
-
+      checkOblique(x,y, character);
     }
 
 
 
 //Function for getting input from keyboard to make a player place a piece
 void makeTurn(enum player playerTurn) {
+    clock_t start=clock();
 	printf("| Player %d |\n", (playerTurn + 1));
 	int validPos = 0;
 	int xCord = -1;
@@ -185,8 +203,11 @@ void makeTurn(enum player playerTurn) {
 	} while(validPos ==-1);
 
 	printf("Placing \"%c\" at position (%d)(%d)\n", characters[playerTurn], xCord,validPos);
+
     placePiece(characters[playerTurn], xCord, validPos);
-   checkVertically(xCord,validPos,characters[playerTurn]);
+    clock_t finish = clock();
+    timer[playerTurn]= ((double)(finish-start));
+   checkForFour(xCord,validPos,characters[playerTurn]);
 }
 
 void checkVertically(int x,int y,char* character){
@@ -207,39 +228,107 @@ void checkVertically(int x,int y,char* character){
 void checkHorizontally(int x,int y,char* character){
     int counter=0;
     int i,j=0;
-    int moveX=0;
-    printf("check horizontally");
     if(x<=4){
-            printf("x is not 4");
-    while(j<=x){
-    for(i=0;i<4;i++){printf("i : %d ", i);
+    while(j<x){
+    for(i=0;i<4;i++){
         if(board[y][j+i]==character){
                 counter++;
-        if(counter==4){
-            winner = 1;}}
+                if(counter==4){
+            winner = 1;
+           }}
         else{counter=0;}
        }
        j++;
+       counter=0;
     }
 
-   }if(x==4){
+   }else if(x==4){
         if(board[y][j+i]==character){
                 counter++;}
         else{counter=0;}
     }
-
-  else{
- while(j!=x-6){
+    else{
+ while(j<x-6){
     for(i=0;i<4;i++){
-        if(board[y][x-j-i]==character){
-                counter++;}
+        if(board[y][x-j-i-1]==character){
+                counter++;
+        if(counter==4){
+                winner = 1;
+           }
+                }
         else{counter=0;}
         }
     j++;
     }
     }
-    if(counter==4){
-            winner = 1;
-           }
-    return 0;}
+
+    return 0;
+
+    }
+void checkOblique(int x,int y,char* character){
+    int line,i,j ;
+    int counter=0;
+    if(x-1+2==y){
+        line =2;
+    }
+    else if(x==y){
+        line =1;
+    }
+    else if(x-1==y){
+        line =0;
+    }
+     else if(x-2==y){
+        line =-1;
+    } else if(x-3==y){
+        line =-2;
+    }
+     else if(x-4==y){
+        line =-3;
+    }
+    for(i=0;i<6;i++){
+            if(counter==4){
+        winner=1;
+        break;
+    }
+        if(character==board[i+line][i]){
+            counter++;
+
+        }else{
+        counter=0;
+        }
+    }
+      if(-(x-1)+3==y){
+        line =3;
+        printf("checking x  y" );
+    }
+    else if(-(x-1)+4==y){
+        line =4;
+    }
+    else if(-(x-1)+5==y){
+        line =5;
+    }
+     else if(-(x-1)+6==y){
+        line =6;
+    } else if(-(x-1)+7==y){
+        line =7;
+    }
+     else if(-(x-1)+8==y){
+        line =8;
+        printf("checking x  y" );
+    }
+    for(i=0;i<=6;i++){
+            if(counter==4){
+        winner=1;
+        break;
+    }
+        if(character==board[-i+line][i]){
+            counter++;
+            printf("value : %c",board[-i+line][i]);
+
+        }else{
+        counter=0;
+        }
+    }
+
+    }
 
