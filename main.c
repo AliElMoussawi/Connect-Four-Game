@@ -314,9 +314,9 @@ void checkOblique(int x,int y,char* character){
     }
      else if(-(x-1)+8==y){
         line =8;
-        printf("checking x  y" );
+        printf("checking x  y %d",line );
     }
-    for(i=0;i<=6;i++){
+    for(i=0;i<=8;i++){
             if(counter==4){
         winner=1;
         break;
