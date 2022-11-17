@@ -11,20 +11,33 @@ enum player {
 	P_ONE,//player one
 	P_TWO//player two
 };
-
-void getInfo();
+void gameControllerMultiplayer(void);
+int  gameControllerBot(int n);
+bool is_column_full(int m);
+//bot function
+int  check3win        ();
+int  check3_diagRDwin ();
+int  check3_diagRUwin ();
+int  check3_horizwin  ();
+int  check3_vertwin   ();
+void getInfo(int in);
 void displayBoard();
+int random_move();
+void update_board(int m, int player_num);
 //global variables
 char board[6][7];// initialize board
 char name[2][30]; //double dimensional array to store names of the player
 char gameOptions[2][40]={"Multi-player","alone"};// here we want to specify the option that play can game offer
 int value=0;
+int computer_num=0;
 int winner = -1;//if winner = -1 then there is no winner until then - if winner = 1 then there is a winner
 char* winnerName[];//displays the winner name
 double timer[2] = {0.0,0.0};
 //begin main function
 int main() {
 int input = 0;
+int inputG=0;
+int botLevel=0;
 do{
     int i;
     printf("\t\t\t\t\t\tConnect Four Game\n");
@@ -38,20 +51,38 @@ do{
         printf("[1] Play game\n");
         printf("[0] Exit\n");
         printf("-> ");
-        scanf("%d", &input);//the system assume the input is integer
+        scanf("%d", &input);
 
 			if(input < 0 || input > 1) {
 				printf("INVALID INPUT PLEASE TRY AGAIN!\n");
 			}
 		}while(input < 0 || input > 1);
-
-		if(input == 1) {
 			printf("+----------+\n");
-			 getInfo();
-    printf("\n\t%s, you have been given 1",name[0]);
-    printf("\t\t\t\t\t%s, you have been given 2\n",name[1]);
-    printf("start the game with %s \n",name[0]);
-	 gameController();
+		if(input == 1) {
+       do{ printf("[1] Multiplayer\n");
+        printf("[0] alone \n");
+        printf("-> ");
+        scanf("%d", &inputG);
+         printf("+----------+\n");
+         getInfo(inputG);
+        if(inputG==1){
+            printf("\n\t%s, you have been given R\n",name[0]);
+            printf("\t\t\t\t\t%s, you have been given Y\n",name[1]);
+            printf("start the game with %s \n",name[0]);
+            gameControllerMultiplayer();}
+	 else{
+             printf("\n\t%s, sadly you area playing alone\n",name[0]);
+             printf("\n\t Level :");
+             scanf("%d", &botLevel);
+             printf("\n\t do you want to start first:\n ");
+             scanf("%d",&computer_num);
+             if(botLevel==0){
+                    easyBot();
+             }
+
+	 }
+        }while(inputG<0 || inputG>1);
+
 	}
 		}while(input != 0);
 
@@ -108,19 +139,21 @@ return 0;
 }
 //requires: none
 //effects:displays on the screen the instructions and asks for the names of the players
-void getInfo(){
+void getInfo(int in){
     printf("Welcome To Connect Four Game!\n\n");
     printf("In order to win:\nYou have to be the first player to connect 4 discs of the same type in a row (either vertically, horizontally, or diagonally).\n");
     printf("\nIf the game ends in a tie, the player with the faster moves wins!\n");
-    printf("\nNote that: only Multi-player option is allowed in this version\n\n");
     printf("Enter Player 1 name: ");
     scanf("%s", &name[0]);
+    if(in==1){
     printf("Enter Player 2 name: ");
     scanf("%s", &name[1]);
     printf("Player 1: %s\nPlayer 2: %s",&name[0],&name[1]);
-    return 0;
+    }
+    else{printf("Player 1: %s\n",&name[0]);
+    }return 0;
 }
-//effects: switch turns 
+//effects: switch turns
 enum player switchPlayer(enum player playerTurn) {
 	if(playerTurn == 0) {
 		enum player temp = P_TWO;
@@ -134,7 +167,7 @@ enum player switchPlayer(enum player playerTurn) {
 
 
 //effects: This is the function that will be called to start the game
-void gameController(void) {
+void gameControllerMultiplayer(void) {
 	enum player playerTurn = P_ONE;
 
 	int counter = 0;
@@ -216,9 +249,9 @@ void makeTurn(enum player playerTurn) {
    checkForFour(characters[playerTurn]);
 }
 //requires: character 1 or 2
-//effects: determines whether there is a horizontal, vertical, or oblique straight 4 1's or 2's around it 
+//effects: determines whether there is a horizontal, vertical, or oblique straight 4 1's or 2's around it
 int check(char* character){
-    int i, j; 
+    int i, j;
         //checks oblique to the left ^ <-
     for (i=3; i<column; i++){
         for (j=0; j <= row-3; j++){
@@ -238,7 +271,7 @@ int check(char* character){
         for (i = 0; i<column; i++){
             if (board[i][j] == character && board[i][j+1] == character && board[i][j+2] == character && board[i][j+3] == character){
                 return 1;
-            }          
+            }
         }
     }
     //checks horizontally
@@ -246,11 +279,511 @@ int check(char* character){
         for (j = 0; j <= row; j++){
             if (board[i][j] == character && board[i+1][j] == character && board[i+2][j] == character && board[i+3][j] == character){
                 return 1;
-            }          
+            }
         }
     }
-    return -1;//if none are winner moves then winner remains -1 
+    return -1;//if none are winner moves then winner remains -1
 
 }
 
+int  gameControllerBot(int n){
+    return 0;
+}
+//-----------------------
 
+int random_move()
+{
+    bool valid = false;
+    int m = 0;
+
+    while (!valid)
+    {
+        m = (rand() % column) + 1;
+
+        valid = !is_column_full(m);
+    }
+    update_board( m, computer_num);
+    return m;
+}
+void update_board(int m, int player_num)
+{
+
+    int c, i;
+
+    // convert the column number to the array index for that column
+    c = m - 1;
+
+    for (i = column-1; i >= 0; --i)
+    {
+        if (board[c][i] != 0) continue;
+        else
+        {
+            board[c][i] = player_num;
+            return;
+        }
+    }
+}
+
+int easyBot(){
+    check3win();
+    return 0;
+}
+
+
+
+int check3win()
+{
+    int winMove;
+    int blockMove;
+    int playerNum;
+
+    playerNum = (computer_num == 1 ? 2 : 1);
+
+    if (check3_vertwin() != 8) {
+        winMove = check3_vertwin();
+        return winMove;
+    }
+    if (check3_horizwin() != 8) {
+        winMove = check3_horizwin();
+        return winMove;
+    }
+    if (check3_diagRUwin() != 8) {
+        winMove = check3_diagRUwin();
+        return winMove;
+    }
+    if (check3_diagRDwin() != 8) {
+        winMove = check3_diagRDwin();
+        return winMove;
+    }
+    if (check3_vertwin() != 8) {
+        blockMove = check3_vertwin();
+        return blockMove;
+    }
+    if (check3_horizwin() != 8) {
+        blockMove = check3_horizwin();
+        return blockMove;
+    }
+    if (check3_diagRUwin() != 8) {
+        blockMove = check3_diagRUwin();
+        return blockMove;
+    }
+    if (check3_diagRDwin() != 8) {
+        blockMove = check3_diagRDwin();
+        return blockMove;
+    }
+    return 8;
+}
+
+int check3_vertwin()
+{
+    int c; //column index
+    int r; //row index
+
+    //start checking from 5th row; can't make a move if top row full
+    for (r = 1; r < 4; r++)
+    {
+        for (c = 0; c < column; c++)
+        {
+            if (is_column_full(c))
+            {
+                printf("Column %d full. Skipping\n", c);
+                continue;
+            }
+
+            if (board[c][r-1]   == 0                 &&
+                board[c][r]     == computer_num      &&
+                board[c][r+1]   == computer_num      &&
+                board[c][r+2]   == computer_num)
+            {
+                return c+1; //changed from c
+            }
+        }
+    }
+    return 8;
+}
+int check3_horizwin()
+{
+    int c; //column index
+    int r; //row index
+
+    for (r = 5; r >= 0; r--)
+    {
+        for (c = 0; c < 5; c++)
+        {
+            //check X X X []
+            if (board[c+3][r]  == 0                 &&
+                board[c][r]    == computer_num      &&
+                board[c+1][r]  == computer_num      &&
+                board[c+2][r]  == computer_num)
+            {
+                if (r == 5 || board[c+3][r+1] != 0) return c+4; //changed from 3
+            }
+            //check X [] X X
+            if (board[c+1][r] == 0                 &&
+                board[c][r]   == computer_num      &&
+                board[c+2][r] == computer_num      &&
+                board[c+3][r] == computer_num)
+            {
+                if (r == 5 || board[c+1][r+1] != 0) return c+2;  //changed from 1
+            }
+            //check X X [] X
+            if (board[c+2][r]   == 0                 &&
+                board[c][r]     == computer_num      &&
+                board[c+1][r]   == computer_num      &&
+                board[c+3][r]   == computer_num)
+            {
+                if (r == 5 || board[c+2][r+1] != 0) return c+3; //changed from 2
+            }
+            //check [] X X X
+            if (board[c][r]   == 0                 &&
+                board[c+1][r] == computer_num      &&
+                board[c+2][r] == computer_num      &&
+                board[c+3][r] == computer_num)
+            {
+                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
+            }
+        }
+    }
+    return 8;
+}
+/*  Function check3_diagRDwinx()  */
+
+int check3_diagRDwin()
+{
+    int c; //column index
+    int r; //row index
+
+    for (r = 0; r < 4; r++)
+    {
+        for (c = 0; c < 4; c++)
+        {
+            //check X X X []
+            if (board[c+3][r+3] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+1][r+1] == computer_num &&
+                board[c+2][r+2] == computer_num)
+            {
+                if (r == 3 || board[c+3][r+4] == 1 || board[c+3][r+4] == 2) return c+4;
+            }
+
+            //check X X [] X
+            if (board[c+2][r+2] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+1][r+1] == computer_num &&
+                board[c+3][r+3] == computer_num &&
+                board[c+2][r+3] != 0 )
+            {
+                return c+3;
+            }
+            //check X [] X X
+            if (board[c+1][r+1] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+2][r+2] == computer_num &&
+                board[c+3][r+3] == computer_num &&
+                board[c+1][r+2] != 0)
+            {
+                return c+2;
+            }
+            //check [] X X X
+            if (board[c][r]     == 0                 &&
+                board[c+1][r+1] == computer_num      &&
+                board[c+2][r+2] == computer_num      &&
+                board[c+3][r+3] == computer_num)
+            {
+                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
+            }
+        }
+    }
+    return 8;
+}
+
+int check3_diagRUwin()
+{
+    int c; //column index
+    int r; //row index
+
+    for (r = 3; r < row; r++)
+    {
+        for (c = 0; c < 4; c++)
+        {
+            //check X X X []
+            if (board[c+3][r-3] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+1][r-1] == computer_num &&
+                board[c+2][r-2] == computer_num &&
+                board[c+3][r-2] != 0)
+            {
+                return c+4; //changed from 3?
+            }
+
+            //check X X [] X
+            if (board[c+2][r-2] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+1][r-1] == computer_num &&
+                board[c+3][r-3] == computer_num &&
+                board[c+2][r-1] != 0)
+            {
+                return c+3;  //changed from 2?
+            }
+            //check X [] X X
+            if (board[c+1][r-1] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+2][r-2] == computer_num &&
+                board[c+3][r-3] == computer_num &&
+                board[c+1][r] != 0)
+            {
+                return c+2;  //changed from 1?
+            }
+            //check [] X X X
+            if (board[c][r]     == 0                 &&
+                board[c+1][r+1] == computer_num      &&
+                board[c+2][r+2] == computer_num      &&
+                board[c+3][r+3] == computer_num)
+            {
+                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
+            }
+        }
+    }
+    return 8;
+}
+
+
+bool is_column_full(int m)
+{
+    if (board[m-1][0] == 0)
+        return false;
+
+    else
+        return true;
+}
+int  best_move()
+{
+    int playerNum;
+    int bestMove;
+
+    playerNum = (computer_num == 1 ? 2 : 1);
+
+    if (check3win() != 8)
+    {
+        bestMove = check3win();
+        update_board( bestMove, computer_num);
+        return bestMove;
+    }
+    else if (build2() != 8)
+    {
+        bestMove = build2();
+        update_board( bestMove, computer_num);
+        return bestMove;
+    }
+
+    else
+    {
+        bestMove = rand() % 7 + 1;
+        update_board( bestMove, computer_num);
+        return bestMove;
+    }
+
+}
+
+int build2()
+{
+    int build2;
+
+    if (build2_diagDN() != 8)
+    {
+        build2 = build2_diagDN();
+        return build2;
+    }
+
+    if (build2_diagUP() != 8)
+    {
+        build2 = build2_diagUP();
+        return build2;
+    }
+    if (build2vert() != 8)
+    {
+        build2 = build2vert();
+        return build2;
+    }
+    if (build2horiz() != 8)
+    {
+        build2 = build2horiz();
+        return build2;
+    }
+    return 8;
+}
+int build2_diagDN()
+{
+    int c;
+    int r;
+
+    for (r = 0; r < 4; r++)
+    {
+        for (c = 0; c < 4; c++)
+        {
+            //check X X [] []
+            if (board[c][r]     == computer_num  &&
+                board[c+1][r+1] == computer_num  &&
+                board[c+3][r+3] == 0             &&
+                board[c+2][r+2] == 0)
+            {
+                if (is_column_full(c+3)) continue;
+
+                if (r == 3 || board[c+2][r+1] != 0) return c+3;
+            }
+
+            //check [] [] X X
+            if (board[c+2][r+2]  == computer_num  &&
+                board[c+3][r+3]  == computer_num  &&
+                board[c][r]      == 0             &&
+                board[c+1][r+1]  == 0             &&
+                board[c+1][r+2]  != 0)
+            {
+                if (is_column_full(c+2)) continue;
+
+                return c+2;
+            }
+
+            //check [] X X []
+            if (board[c+2][r+2]  == computer_num  &&
+                board[c+1][r+1]  == computer_num  &&
+                board[c][r]      == 0             &&
+                board[c+3][r+3]  == 0)
+            {
+                if (is_column_full(c+4)) continue;
+
+                if (r == 3 || board[c+3][r+3]  != 0) return c+4;
+            }
+
+            //check [] X [] X
+            if (board[c+1][r+1]  == computer_num  &&
+                board[c+3][r+3]  == computer_num  &&
+                board[c][r]      == 0             &&
+                board[c+2][r+2]  == 0             &&
+                board[c][r+1]    != 0)
+            {
+                if (is_column_full(c+1)) continue;
+
+                return c+1;
+            }
+
+            //check X [] X []
+            if (board[c+2][r+2]  == computer_num  &&
+                board[c][r]      == computer_num  &&
+                board[c+1][r+1]  == 0             &&
+                board[c+3][r+3]  == 0)
+            {
+                if (is_column_full(c+4)) continue;
+
+                if (r == 3 || board[c+3][r+3]  != 0) return c+4;
+            }
+
+            //check X [] [] X
+            if (board[c][r+1]    == computer_num  &&
+                board[c+3][r+3]  == computer_num  &&
+                board[c+1][r+1]  == 0             &&
+                board[c+2][r+2]  == 0             &&
+                board[c+2][r+3]  != 0)
+            {
+                if (is_column_full(c+3)) continue;
+
+                return c+3;
+            }
+        }
+    }
+    return 8;
+}
+
+int build2_diagUP()
+{
+    int c;
+    int r;
+
+    for (r = 3; r < BOARD_SIZE_VERT; r++)
+    {
+        for (c = 0; c < 4; c++)
+        {
+            //check X X [] []
+            if (board[c][r]      == computer_num  &&
+                board[c+1][r-1]  == computer_num  &&
+                board[c+3][r-3]  == 0             &&
+                board[c+2][r-2]  == 0             &&
+                board[c+3][r-2]  != 0)
+
+                return c+4;
+
+            //check [] [] X X
+            if (board[c+2][r-2]  == computer_num  &&
+                board[c+3][r-3]  == computer_num  &&
+                board[c][r]      == 0             &&
+                board[c+1][r-1]  == 0)
+            {
+                if (r == BOARD_SIZE_VERT || board[c][r+1] != 0) return c+1;
+            }
+
+            //check [] X X []
+            if (board[c+2][r-2]  == computer_num  &&
+                board[c+1][r-1]  == computer_num  &&
+                board[c][r]      == 0             &&
+                board[c+3][r-3]  == 0             &&
+                board[c+3][r-2]  != 0)
+
+                return c+4;
+
+            //check [] X [] X
+            if (board[c+1][r-1]  == computer_num  &&
+                board[c+3][r-3]  == computer_num  &&
+                board[c][r]      == 0             &&
+                board[c+2][r-2]  == 0)
+            {
+                if (r == BOARD_SIZE_VERT || board[c][r+1] != 0)  return c+1;
+            }
+
+            //check X [] X []
+            if (board[c+2][r-2]  == computer_num  &&
+                board[c][r]      == computer_num  &&
+                board[c+1][r-1]  == 0             &&
+                board[c+3][r-3]  == 0             &&
+                board[c+3][r-2]  != 0)
+
+                return c+4;
+
+            //check X [] [] X
+            if (board[c][r+1]    == computer_num  &&
+                board[c+3][r-3]  == computer_num  &&
+                board[c+1][r-1]  == 0             &&
+                board[c+2][r-2]  == 0             &&
+                board[c+1][r-2]  != 0)
+
+                return c+2;
+        }
+    }
+    return 8;
+}
+
+
+/*  Function build2vert()  */
+int build2vert()
+{
+    int c;
+    int r;
+
+    for (r = 2; r < BOARD_SIZE_VERT; r++)
+    {
+        for (c = 0; c < BOARD_SIZE_HORIZ; c++)
+        {
+            if (is_column_full(c))
+            {
+                printf("column %d full. Skipping\n", c);
+                continue;
+            }
+            if (board[c][r-1]  == 0            &&
+                board[c][r]    == computer_num &&
+                board[c][r+1]  == computer_num)
+            {
+                return c+1;
+            }
+        }
+    }
+    return 8;
+}

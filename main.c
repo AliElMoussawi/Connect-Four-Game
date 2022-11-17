@@ -25,6 +25,7 @@ double timer[2] = {0.0,0.0};
 //begin main function
 int main() {
 int input = 0;
+int inputG=0;
 do{
     int i;
     printf("\t\t\t\t\t\tConnect Four Game\n");
@@ -44,14 +45,26 @@ do{
 				printf("INVALID INPUT PLEASE TRY AGAIN!\n");
 			}
 		}while(input < 0 || input > 1);
-
-		if(input == 1) {
 			printf("+----------+\n");
+		if(input == 1) {
+       do{ printf("[1] Multiplayer\n");
+        printf("[0] alone \n");
+        printf("-> ");
+        scanf("%d", &inputG);
+
+        if(inputG==1){
+            printf("+----------+\n");
 			 getInfo();
     printf("\n\t%s, you have been given R",name[0]);
     printf("\t\t\t\t\t%s, you have been given Y\n",name[1]);
     printf("start the game with %s \n",name[0]);
-	 gameController();
+	 gameControllerMultiplayer();}
+	 else{
+             printf("\n\t%s, you have been given R",name[0]);
+
+	 }
+        }while(inputG<0 || inputG>1);
+
 	}
 		}while(input != 0);
 
@@ -126,7 +139,7 @@ enum player switchPlayer(enum player playerTurn) {
 
 
 //This is the function that will be called to start the game
-void gameController(void) {
+void gameControllerMultiplayer(void) {
 	enum player playerTurn = P_ONE;
 
 	int counter = 0;
