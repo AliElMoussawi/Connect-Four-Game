@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include<stdlib.h>
 #include <time.h>
+
+
+
+#include <ctype.h>
+#include <sys/types.h>
+
 #define row 6
 #define column 7
 //function prototypes
@@ -12,24 +18,14 @@ enum player {
 	P_TWO//player two
 };
 void gameControllerMultiplayer(void);
-int  gameControllerBot(int n);
-bool is_column_full(int m);
-//bot function
-int  check3win        ();
-int  check3_diagRDwin ();
-int  check3_diagRUwin ();
-int  check3_horizwin  ();
-int  check3_vertwin   ();
+
+int value=0;
 void getInfo(int in);
 void displayBoard();
-int random_move();
-void update_board(int m, int player_num);
 //global variables
 char board[6][7];// initialize board
 char name[2][30]; //double dimensional array to store names of the player
 char gameOptions[2][40]={"Multi-player","alone"};// here we want to specify the option that play can game offer
-int value=0;
-int computer_num=0;
 int winner = -1;//if winner = -1 then there is no winner until then - if winner = 1 then there is a winner
 char* winnerName[];//displays the winner name
 double timer[2] = {0.0,0.0};
@@ -38,6 +34,7 @@ int main() {
 int input = 0;
 int inputG=0;
 int botLevel=0;
+
 do{
     int i;
     printf("\t\t\t\t\t\tConnect Four Game\n");
@@ -74,10 +71,8 @@ do{
              printf("\n\t%s, sadly you area playing alone\n",name[0]);
              printf("\n\t Level :");
              scanf("%d", &botLevel);
-             printf("\n\t do you want to start first:\n ");
-             scanf("%d",&computer_num);
-             if(botLevel==0){
-                    easyBot();
+               if(botLevel==0){
+               easyBot();
              }
 
 	 }
@@ -289,23 +284,231 @@ int check(char* character){
 int  gameControllerBot(int n){
     return 0;
 }
-//-----------------------
+#ifndef CONNECT4_FUNCTIONS
+#define CONNECT4_FUNCTIONS
 
-int random_move()
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
+
+
+#endif
+
+#include <ctype.h>
+#include <sys/types.h>
+
+
+#define BOARD_SIZE_HORIZ 7
+#define BOARD_SIZE_VERT 6
+
+int print_welcome(void);
+
+
+void display_board(int board[][BOARD_SIZE_VERT]);
+
+
+int random_move(int board[][BOARD_SIZE_VERT], int computer_num);
+
+
+
+int player_move(int board[][BOARD_SIZE_VERT], int player_num);
+
+
+bool check_win_or_tie(int board[][BOARD_SIZE_VERT], int last_move);
+
+
+bool is_column_full(int board[][BOARD_SIZE_VERT], int m);
+
+void update_board(int board[][BOARD_SIZE_VERT], int m, int player_num);
+
+int check_winner(int board[][BOARD_SIZE_VERT], int last_move);
+
+int best_move(int board[][BOARD_SIZE_VERT], int computer_num);
+
+
+/* Forward function declarations  */
+
+bool check_diagRD     (int board[][BOARD_SIZE_VERT], int m);
+bool check_diagRU     (int board[][BOARD_SIZE_VERT], int m);
+bool check_vertical   (int board[][BOARD_SIZE_VERT], int m);
+bool check_horizontal (int board[][BOARD_SIZE_VERT], int m);
+int  build2           (int board[][BOARD_SIZE_VERT], int computer_num);
+int  build2_diagDN    (int board[][BOARD_SIZE_VERT], int computer_num);
+int  build2_diagUP    (int board[][BOARD_SIZE_VERT], int computer_num);
+int  build2horiz      (int board[][BOARD_SIZE_VERT], int computer_num);
+int  build2vert       (int board[][BOARD_SIZE_VERT], int computer_num);
+int  check3win        (int board[][BOARD_SIZE_VERT], int computer_num);
+int  check3_diagRDwin (int board[][BOARD_SIZE_VERT], int computer_num);
+int  check3_diagRUwin (int board[][BOARD_SIZE_VERT], int computer_num);
+int  check3_horizwin  (int board[][BOARD_SIZE_VERT], int computer_num);
+int  check3_vertwin   (int board[][BOARD_SIZE_VERT], int computer_num);
+
+
+
+
+/*   Function print_welcome()  */
+int print_welcome(void)
+{
+
+    char c;
+
+    srand(time(NULL));
+
+
+    printf("\n*** Welcome to the Connect-Four game!!! ***\n");
+    printf("Would you like to make the first move [y/n]: \n");
+
+    c = getchar();
+
+    while (getchar() != '\n') { } //clears stdin
+
+    if (c ==    'n' || c == 'N') return 2;
+    else return 1;
+
+}
+void display_board(int board[] [BOARD_SIZE_VERT])
+{
+
+    int r = 0;
+    int c = 0;
+
+       printf("\n\n\n\t\t\t\t\t\t  -------------\n");
+
+
+    for (r = 0; r < BOARD_SIZE_VERT; ++r)
+    {
+                  printf("\t\t\t\t\t\t ");
+
+
+
+        for (c = 0; c < BOARD_SIZE_HORIZ; ++c)
+        {
+            switch (board[c][r])
+            {
+                case 0:
+                    printf("|0");
+                    break;
+
+                case 1:
+                    printf("|1");
+                    break;
+
+                case 2:
+                    printf("|2");
+                    break;
+                default:
+                    printf("Error: board entry %d,%d invaid.\n",r,c);
+                    break;
+            }
+        }
+        printf("|\n");
+    }    printf("\t\t\t\t\t\t  -------------\n");
+
+
+
+    printf ("\t\t\t\t\t\t  1 2 3 4 5 6 7\n\n");
+    return;
+}
+
+
+/*  Function random_move()  */
+
+int random_move(int board[][BOARD_SIZE_VERT], int computer_num)
 {
     bool valid = false;
     int m = 0;
 
     while (!valid)
     {
-        m = (rand() % column) + 1;
+        m = (rand() % BOARD_SIZE_HORIZ) + 1;
 
-        valid = !is_column_full(m);
+        valid = !is_column_full(board,m);
     }
-    update_board( m, computer_num);
+    update_board(board, m, computer_num);
     return m;
 }
-void update_board(int m, int player_num)
+/*  Function player_move()  */
+int player_move(int board[][BOARD_SIZE_VERT], int player_num)
+{
+    char c = 'c';  //Initializes c to a non-digit so isdigit(c) returns false
+    int x = 0;
+
+    /* the loop will repeat until the player enters a digit */
+    while (!isdigit(c))
+    {
+        printf("Please enter your move: ");
+
+        c = getchar();
+
+        while (getchar() != '\n') { } //clears stdin
+
+        /* x is the ASCII value of c; if c represents a digit, subtracting '0' *
+         * will convert the character to the integer it represents.            */
+        x = c - '0';
+
+        //Checks whether x is valid, i.e. between 1 and 8
+        if (x < 1 || x > 8)
+        {
+            printf("Not a valid move. Enter a column number!\n");
+            c = 'c';       //reset c to a non-digit to continue looping
+                           //in case the user entered a digit that was invalid
+        }
+
+        else
+        {
+            if (is_column_full(board,x))
+            {
+                printf("This column is full. Try again!.\n");
+                c = 'c';
+            }
+            update_board(board, x, player_num);
+        }
+    }
+    return x;
+}
+
+/*  Function check_win_or_tie()  */
+bool check_win_or_tie(int board[][BOARD_SIZE_VERT], int last_move)
+{
+    int w;
+    int c;
+    int r = 0;
+
+    w = check_winner(board, last_move);
+    if (check_winner(board, last_move))
+    {
+        printf("*****************************\n");
+        printf("* Player %c won!!! Game over *\n", (w == 1 ? 'X' : 'O'));
+        printf("*****************************\n");
+        return true;
+    }
+    else
+    {
+        for (c = 0; c < BOARD_SIZE_VERT; c++)
+        {
+            if (board[c][r] == 0) return false;
+        }
+        printf("*****************************\n");
+        printf("* Game is a tie!! No winner *\n");
+        printf("*****************************\n");
+        return true;
+    }
+}
+
+/*  Function is_column_full()  */
+bool is_column_full(int board[][BOARD_SIZE_VERT], int m)
+{
+    if (board[m-1][0] == 0)
+        return false;
+
+    else
+        return true;
+}
+
+/*  Function update_board()  */
+void update_board(int board[][BOARD_SIZE_VERT], int m, int player_num)
 {
 
     int c, i;
@@ -313,7 +516,7 @@ void update_board(int m, int player_num)
     // convert the column number to the array index for that column
     c = m - 1;
 
-    for (i = column-1; i >= 0; --i)
+    for (i = BOARD_SIZE_VERT-1; i >= 0; --i)
     {
         if (board[c][i] != 0) continue;
         else
@@ -324,295 +527,195 @@ void update_board(int m, int player_num)
     }
 }
 
-int easyBot(){
-    check3win();
+
+/*  Function check_winner  */
+int check_winner(int board[][BOARD_SIZE_VERT], int last_move)
+{
+    int c;
+    int i;
+
+    //again, converts column of last_move to that column's array index
+    c = last_move - 1;
+
+    if (check_diagRU    (board, last_move) == true ||
+        check_diagRD    (board, last_move) == true ||
+        check_horizontal(board, last_move) == true ||
+        check_vertical  (board, last_move) == true )
+    {
+        for (i = 0; i < BOARD_SIZE_VERT; i++)
+        {
+            switch (board[c][i])
+            {
+                case 0:
+                    continue;
+                case 1:
+                    return 1;
+                case 2:
+                    return 2;
+                default:
+                    printf("Error! Value in board[%d][%d] invalid.\n",c,i);
+                    return 0;
+            }
+        }
+    }
     return 0;
 }
 
-
-
-int check3win()
+/*  Function check_diagRD()  */
+bool check_diagRD(int board[][BOARD_SIZE_VERT], int last_move)
 {
-    int winMove;
-    int blockMove;
-    int playerNum;
+    int r;  //row index
+    int c;  //column index
 
-    playerNum = (computer_num == 1 ? 2 : 1);
-
-    if (check3_vertwin() != 8) {
-        winMove = check3_vertwin();
-        return winMove;
-    }
-    if (check3_horizwin() != 8) {
-        winMove = check3_horizwin();
-        return winMove;
-    }
-    if (check3_diagRUwin() != 8) {
-        winMove = check3_diagRUwin();
-        return winMove;
-    }
-    if (check3_diagRDwin() != 8) {
-        winMove = check3_diagRDwin();
-        return winMove;
-    }
-    if (check3_vertwin() != 8) {
-        blockMove = check3_vertwin();
-        return blockMove;
-    }
-    if (check3_horizwin() != 8) {
-        blockMove = check3_horizwin();
-        return blockMove;
-    }
-    if (check3_diagRUwin() != 8) {
-        blockMove = check3_diagRUwin();
-        return blockMove;
-    }
-    if (check3_diagRDwin() != 8) {
-        blockMove = check3_diagRDwin();
-        return blockMove;
-    }
-    return 8;
-}
-
-int check3_vertwin()
-{
-    int c; //column index
-    int r; //row index
-
-    //start checking from 5th row; can't make a move if top row full
-    for (r = 1; r < 4; r++)
-    {
-        for (c = 0; c < column; c++)
-        {
-            if (is_column_full(c))
-            {
-                printf("Column %d full. Skipping\n", c);
-                continue;
-            }
-
-            if (board[c][r-1]   == 0                 &&
-                board[c][r]     == computer_num      &&
-                board[c][r+1]   == computer_num      &&
-                board[c][r+2]   == computer_num)
-            {
-                return c+1; //changed from c
-            }
-        }
-    }
-    return 8;
-}
-int check3_horizwin()
-{
-    int c; //column index
-    int r; //row index
-
-    for (r = 5; r >= 0; r--)
-    {
-        for (c = 0; c < 5; c++)
-        {
-            //check X X X []
-            if (board[c+3][r]  == 0                 &&
-                board[c][r]    == computer_num      &&
-                board[c+1][r]  == computer_num      &&
-                board[c+2][r]  == computer_num)
-            {
-                if (r == 5 || board[c+3][r+1] != 0) return c+4; //changed from 3
-            }
-            //check X [] X X
-            if (board[c+1][r] == 0                 &&
-                board[c][r]   == computer_num      &&
-                board[c+2][r] == computer_num      &&
-                board[c+3][r] == computer_num)
-            {
-                if (r == 5 || board[c+1][r+1] != 0) return c+2;  //changed from 1
-            }
-            //check X X [] X
-            if (board[c+2][r]   == 0                 &&
-                board[c][r]     == computer_num      &&
-                board[c+1][r]   == computer_num      &&
-                board[c+3][r]   == computer_num)
-            {
-                if (r == 5 || board[c+2][r+1] != 0) return c+3; //changed from 2
-            }
-            //check [] X X X
-            if (board[c][r]   == 0                 &&
-                board[c+1][r] == computer_num      &&
-                board[c+2][r] == computer_num      &&
-                board[c+3][r] == computer_num)
-            {
-                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
-            }
-        }
-    }
-    return 8;
-}
-/*  Function check3_diagRDwinx()  */
-
-int check3_diagRDwin()
-{
-    int c; //column index
-    int r; //row index
-
-    for (r = 0; r < 4; r++)
+    for (r = 0; r < 3; r++)
     {
         for (c = 0; c < 4; c++)
         {
-            //check X X X []
-            if (board[c+3][r+3] == 0            &&
-                board[c][r]     == computer_num &&
-                board[c+1][r+1] == computer_num &&
-                board[c+2][r+2] == computer_num)
+            if (board[c][r] != 0               &&
+                board[c][r] == board[c+1][r+1] &&
+                board[c][r] == board[c+2][r+2] &&
+                board[c][r] == board[c+3][r+3])
             {
-                if (r == 3 || board[c+3][r+4] == 1 || board[c+3][r+4] == 2) return c+4;
+                return true;
             }
-
-            //check X X [] X
-            if (board[c+2][r+2] == 0            &&
-                board[c][r]     == computer_num &&
-                board[c+1][r+1] == computer_num &&
-                board[c+3][r+3] == computer_num &&
-                board[c+2][r+3] != 0 )
-            {
-                return c+3;
-            }
-            //check X [] X X
-            if (board[c+1][r+1] == 0            &&
-                board[c][r]     == computer_num &&
-                board[c+2][r+2] == computer_num &&
-                board[c+3][r+3] == computer_num &&
-                board[c+1][r+2] != 0)
-            {
-                return c+2;
-            }
-            //check [] X X X
-            if (board[c][r]     == 0                 &&
-                board[c+1][r+1] == computer_num      &&
-                board[c+2][r+2] == computer_num      &&
-                board[c+3][r+3] == computer_num)
-            {
-                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
-            }
+            else continue;
         }
     }
-    return 8;
+    return false;
 }
 
-int check3_diagRUwin()
+/*  Function check_diagRU()  */
+bool check_diagRU(int board[][BOARD_SIZE_VERT], int last_move)
 {
-    int c; //column index
-    int r; //row index
+    int r;  //row index
+    int c;  //column index
 
-    for (r = 3; r < row; r++)
+    for (r = 3; r < BOARD_SIZE_VERT; r++)
     {
         for (c = 0; c < 4; c++)
         {
-            //check X X X []
-            if (board[c+3][r-3] == 0            &&
-                board[c][r]     == computer_num &&
-                board[c+1][r-1] == computer_num &&
-                board[c+2][r-2] == computer_num &&
-                board[c+3][r-2] != 0)
+            if (board[c][r] != 0               &&
+                board[c][r] == board[c+1][r-1] &&
+                board[c][r] == board[c+2][r-2] &&
+                board[c][r] == board[c+3][r-3])
             {
-                return c+4; //changed from 3?
+                return true;
             }
-
-            //check X X [] X
-            if (board[c+2][r-2] == 0            &&
-                board[c][r]     == computer_num &&
-                board[c+1][r-1] == computer_num &&
-                board[c+3][r-3] == computer_num &&
-                board[c+2][r-1] != 0)
-            {
-                return c+3;  //changed from 2?
-            }
-            //check X [] X X
-            if (board[c+1][r-1] == 0            &&
-                board[c][r]     == computer_num &&
-                board[c+2][r-2] == computer_num &&
-                board[c+3][r-3] == computer_num &&
-                board[c+1][r] != 0)
-            {
-                return c+2;  //changed from 1?
-            }
-            //check [] X X X
-            if (board[c][r]     == 0                 &&
-                board[c+1][r+1] == computer_num      &&
-                board[c+2][r+2] == computer_num      &&
-                board[c+3][r+3] == computer_num)
-            {
-                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
-            }
+            else continue;
         }
     }
-    return 8;
+    return false;
 }
 
+/*  Function check_ vertical()  */
 
-bool is_column_full(int m)
+bool check_vertical(int board[][BOARD_SIZE_VERT], int m)
 {
-    if (board[m-1][0] == 0)
-        return false;
+    int r;  //row index
+    int c;  //column index
 
-    else
-        return true;
+    for (r = 0; r < 3; r++)
+    {
+        for (c = 0; c < BOARD_SIZE_HORIZ; c++)
+        {
+            if (board[c][r] != 0             &&
+                board[c][r] == board[c][r+1] &&
+                board[c][r] == board[c][r+2] &&
+                board[c][r] == board[c][r+3])
+            {
+                return true;
+            }
+            else continue;
+        }
+    }
+    return false;
 }
-int  best_move()
+
+/*  Function check_horizontal() checks for 4 in a row  */
+
+bool check_horizontal(int board[][BOARD_SIZE_VERT], int m)
+{
+    int r;  //row index
+    int c;  //column index
+
+    for (r = 0; r < BOARD_SIZE_VERT; r++)
+    {
+        for (c = 0; c < 4; c++)
+        {
+            if (board[c][r] != 0             &&
+                board[c][r] == board[c+1][r] &&
+                board[c][r] == board[c+2][r] &&
+                board[c][r] == board[c+3][r])
+            {
+                return true;
+            }
+            else continue;
+        }
+    }
+    return false;
+}
+
+/*  Function best_move() - To be used in extra credit competition  */
+int  best_move(int board[][BOARD_SIZE_VERT], int computer_num)
 {
     int playerNum;
     int bestMove;
 
     playerNum = (computer_num == 1 ? 2 : 1);
 
-    if (check3win() != 8)
+    if (check3win(board, computer_num) != 8)
     {
-        bestMove = check3win();
-        update_board( bestMove, computer_num);
+        bestMove = check3win(board, computer_num);
+        update_board(board, bestMove, computer_num);
         return bestMove;
     }
-    else if (build2() != 8)
+    else if (build2(board,computer_num) != 8)
     {
-        bestMove = build2();
-        update_board( bestMove, computer_num);
+        bestMove = build2(board, computer_num);
+        update_board(board, bestMove, computer_num);
         return bestMove;
     }
 
     else
     {
         bestMove = rand() % 7 + 1;
-        update_board( bestMove, computer_num);
+        update_board(board, bestMove, computer_num);
         return bestMove;
     }
 
 }
 
-int build2()
+/*  Function build2()  */
+int build2(int board[][BOARD_SIZE_VERT], int computer_num)
 {
     int build2;
 
-    if (build2_diagDN() != 8)
+    if (build2_diagDN(board,computer_num) != 8)
     {
-        build2 = build2_diagDN();
+        build2 = build2_diagDN(board,computer_num);
         return build2;
     }
 
-    if (build2_diagUP() != 8)
+    if (build2_diagUP(board,computer_num) != 8)
     {
-        build2 = build2_diagUP();
+        build2 = build2_diagUP(board,computer_num);
         return build2;
     }
-    if (build2vert() != 8)
+    if (build2vert(board,computer_num) != 8)
     {
-        build2 = build2vert();
+        build2 = build2vert(board,computer_num);
         return build2;
     }
-    if (build2horiz() != 8)
+    if (build2horiz(board,computer_num) != 8)
     {
-        build2 = build2horiz();
+        build2 = build2horiz(board,computer_num);
         return build2;
     }
     return 8;
 }
-int build2_diagDN()
+
+/*  Function build2_diagDN()  */
+int build2_diagDN(int board[][BOARD_SIZE_VERT], int computer_num)
 {
     int c;
     int r;
@@ -627,7 +730,7 @@ int build2_diagDN()
                 board[c+3][r+3] == 0             &&
                 board[c+2][r+2] == 0)
             {
-                if (is_column_full(c+3)) continue;
+                if (is_column_full(board,c+3)) continue;
 
                 if (r == 3 || board[c+2][r+1] != 0) return c+3;
             }
@@ -639,7 +742,7 @@ int build2_diagDN()
                 board[c+1][r+1]  == 0             &&
                 board[c+1][r+2]  != 0)
             {
-                if (is_column_full(c+2)) continue;
+                if (is_column_full(board,c+2)) continue;
 
                 return c+2;
             }
@@ -650,7 +753,7 @@ int build2_diagDN()
                 board[c][r]      == 0             &&
                 board[c+3][r+3]  == 0)
             {
-                if (is_column_full(c+4)) continue;
+                if (is_column_full(board,c+4)) continue;
 
                 if (r == 3 || board[c+3][r+3]  != 0) return c+4;
             }
@@ -662,7 +765,7 @@ int build2_diagDN()
                 board[c+2][r+2]  == 0             &&
                 board[c][r+1]    != 0)
             {
-                if (is_column_full(c+1)) continue;
+                if (is_column_full(board,c+1)) continue;
 
                 return c+1;
             }
@@ -673,7 +776,7 @@ int build2_diagDN()
                 board[c+1][r+1]  == 0             &&
                 board[c+3][r+3]  == 0)
             {
-                if (is_column_full(c+4)) continue;
+                if (is_column_full(board,c+4)) continue;
 
                 if (r == 3 || board[c+3][r+3]  != 0) return c+4;
             }
@@ -685,7 +788,7 @@ int build2_diagDN()
                 board[c+2][r+2]  == 0             &&
                 board[c+2][r+3]  != 0)
             {
-                if (is_column_full(c+3)) continue;
+                if (is_column_full(board,c+3)) continue;
 
                 return c+3;
             }
@@ -694,7 +797,9 @@ int build2_diagDN()
     return 8;
 }
 
-int build2_diagUP()
+
+/*  Function build2_diagUP()  */
+int build2_diagUP(int board[][BOARD_SIZE_VERT], int computer_num)
 {
     int c;
     int r;
@@ -763,7 +868,7 @@ int build2_diagUP()
 
 
 /*  Function build2vert()  */
-int build2vert()
+int build2vert(int board[][BOARD_SIZE_VERT], int computer_num)
 {
     int c;
     int r;
@@ -772,9 +877,9 @@ int build2vert()
     {
         for (c = 0; c < BOARD_SIZE_HORIZ; c++)
         {
-            if (is_column_full(c))
+            if (is_column_full(board,c))
             {
-                printf("column %d full. Skipping\n", c);
+                //printf("column %d full. Skipping\n", c);
                 continue;
             }
             if (board[c][r-1]  == 0            &&
@@ -787,3 +892,343 @@ int build2vert()
     }
     return 8;
 }
+
+
+/*  Function build2horiz()  */
+int build2horiz(int board[][BOARD_SIZE_VERT], int computer_num)
+{
+    int c;
+    int r;
+
+    for (r = 5; r >= 0; r--)
+    {
+        for (c = 0; c < 4; c++)
+        {
+            //check X X [] []
+            if (board[c+3][r]  == 0             &&
+                board[c+2][r]  == 0             &&
+                board[c+1][r]  == computer_num  &&
+                board[c][r]    == computer_num)
+            {
+                if (r == 5 || board[c+3][r+1] != 0) return c+4;
+            }
+            //check [] [] X X
+            if (board[c][r]    == 0             &&
+                board[c+1][r]  == 0             &&
+                board[c+2][r]  == computer_num  &&
+                board[c+3][r]  == computer_num)
+            {
+                if (r == 5 || board[c][r+1] != 0) return c+1;
+            }
+            //check [] X X []
+            if (board[c][r]    == 0             &&
+                board[c+3][r]  == 0             &&
+                board[c+2][r]  == computer_num  &&
+                board[c+1][r]  == computer_num)
+            {
+                if (r == 5 || board[c+1][r+1] != 0) return c+1;
+            }
+
+            //check X [] X []
+            if (board[c+3][r]  == 0             &&
+                board[c+1][r]  == 0             &&
+                board[c+2][r]  == computer_num  &&
+                board[c][r]    == computer_num)
+            {
+                if (r == 5 || board[c+3][r+1] != 0) return c+4;
+            }
+            //check [] X [] X
+            if (board[c][r]    == 0             &&
+                board[c+2][r]  == 0             &&
+                board[c+1][r]  == computer_num  &&
+                board[c+3][r]  == computer_num)
+            {
+                if (r == 5 || board[c][r+1] != 0) return c+1;
+            }
+            //check X [] [] X
+            if (board[c+1][r]  == 0             &&
+                board[c+2][r]  == 0             &&
+                board[c][r]    == computer_num  &&
+                board[c+3][r]  == computer_num)
+            {
+                if (r == 5 || board[c+1][r+1] != 0) return c+2;
+            }
+        }
+    }
+    return 8;
+}
+
+
+/*  Function check3win()  */
+int check3win(int board[][BOARD_SIZE_VERT], int computer_num)
+{
+    int winMove;
+    int blockMove;
+    int playerNum;
+
+    playerNum = (computer_num == 1 ? 2 : 1);
+
+    if (check3_vertwin(board, computer_num) != 8) {
+        winMove = check3_vertwin(board, computer_num);
+        return winMove;
+    }
+    if (check3_horizwin(board, computer_num) != 8) {
+        winMove = check3_horizwin(board, computer_num);
+        return winMove;
+    }
+    if (check3_diagRUwin(board, computer_num) != 8) {
+        winMove = check3_diagRUwin(board, computer_num);
+        return winMove;
+    }
+    if (check3_diagRDwin(board, computer_num) != 8) {
+        winMove = check3_diagRDwin(board, computer_num);
+        return winMove;
+    }
+    if (check3_vertwin(board, playerNum) != 8) {
+        blockMove = check3_vertwin(board, playerNum);
+        return blockMove;
+    }
+    if (check3_horizwin(board, playerNum) != 8) {
+        blockMove = check3_horizwin(board, playerNum);
+        return blockMove;
+    }
+    if (check3_diagRUwin(board, playerNum) != 8) {
+        blockMove = check3_diagRUwin(board, playerNum);
+        return blockMove;
+    }
+    if (check3_diagRDwin(board, playerNum) != 8) {
+        blockMove = check3_diagRDwin(board, playerNum);
+        return blockMove;
+    }
+    return 8;
+}
+/*  Function check3_vertwin()  */
+int check3_vertwin(int board[][BOARD_SIZE_VERT], int computer_num)
+{
+    int c; //column index
+    int r; //row index
+
+    //start checking from 5th row; can't make a move if top row full
+    for (r = 1; r < 4; r++)
+    {
+        for (c = 0; c < BOARD_SIZE_HORIZ; c++)
+        {
+            if (is_column_full(board,c))
+            {
+              //  printf("Column %d full. Skipping\n", c);
+                continue;
+            }
+
+            if (board[c][r-1]   == 0                 &&
+                board[c][r]     == computer_num      &&
+                board[c][r+1]   == computer_num      &&
+                board[c][r+2]   == computer_num)
+            {
+                return c+1; //changed from c
+            }
+        }
+    }
+    return 8;
+}
+/*  Function check3_horizwin()  */
+int check3_horizwin(int board[][BOARD_SIZE_VERT], int computer_num)
+{
+    int c; //column index
+    int r; //row index
+
+    for (r = 5; r >= 0; r--)
+    {
+        for (c = 0; c < 5; c++)
+        {
+            //check X X X []
+            if (board[c+3][r]  == 0                 &&
+                board[c][r]    == computer_num      &&
+                board[c+1][r]  == computer_num      &&
+                board[c+2][r]  == computer_num)
+            {
+                if (r == 5 || board[c+3][r+1] != 0) return c+4; //changed from 3
+            }
+            //check X [] X X
+            if (board[c+1][r] == 0                 &&
+                board[c][r]   == computer_num      &&
+                board[c+2][r] == computer_num      &&
+                board[c+3][r] == computer_num)
+            {
+                if (r == 5 || board[c+1][r+1] != 0) return c+2;  //changed from 1
+            }
+            //check X X [] X
+            if (board[c+2][r]   == 0                 &&
+                board[c][r]     == computer_num      &&
+                board[c+1][r]   == computer_num      &&
+                board[c+3][r]   == computer_num)
+            {
+                if (r == 5 || board[c+2][r+1] != 0) return c+3; //changed from 2
+            }
+            //check [] X X X
+            if (board[c][r]   == 0                 &&
+                board[c+1][r] == computer_num      &&
+                board[c+2][r] == computer_num      &&
+                board[c+3][r] == computer_num)
+            {
+                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
+            }
+        }
+    }
+    return 8;
+}
+
+/*  Function check3_diagRDwin()  */
+int check3_diagRDwin(int board[][BOARD_SIZE_VERT], int computer_num)
+{
+    int c; //column index
+    int r; //row index
+
+    for (r = 0; r < 4; r++)
+    {
+        for (c = 0; c < 4; c++)
+        {
+            //check X X X []
+            if (board[c+3][r+3] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+1][r+1] == computer_num &&
+                board[c+2][r+2] == computer_num)
+            {
+                if (r == 3 || board[c+3][r+4] == 1 || board[c+3][r+4] == 2) return c+4;
+            }
+
+            //check X X [] X
+            if (board[c+2][r+2] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+1][r+1] == computer_num &&
+                board[c+3][r+3] == computer_num &&
+                board[c+2][r+3] != 0 )
+            {
+                return c+3;
+            }
+            //check X [] X X
+            if (board[c+1][r+1] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+2][r+2] == computer_num &&
+                board[c+3][r+3] == computer_num &&
+                board[c+1][r+2] != 0)
+            {
+                return c+2;
+            }
+            //check [] X X X
+            if (board[c][r]     == 0                 &&
+                board[c+1][r+1] == computer_num      &&
+                board[c+2][r+2] == computer_num      &&
+                board[c+3][r+3] == computer_num)
+            {
+                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
+            }
+        }
+    }
+    return 8;
+}
+/*  Function check3_diagRUwin()  */
+int check3_diagRUwin(int board[][BOARD_SIZE_VERT], int computer_num)
+{
+    int c; //column index
+    int r; //row index
+
+    for (r = 3; r < BOARD_SIZE_VERT; r++)
+    {
+        for (c = 0; c < 4; c++)
+        {
+            //check X X X []
+            if (board[c+3][r-3] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+1][r-1] == computer_num &&
+                board[c+2][r-2] == computer_num &&
+                board[c+3][r-2] != 0)
+            {
+                return c+4; //changed from 3?
+            }
+
+            //check X X [] X
+            if (board[c+2][r-2] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+1][r-1] == computer_num &&
+                board[c+3][r-3] == computer_num &&
+                board[c+2][r-1] != 0)
+            {
+                return c+3;  //changed from 2?
+            }
+            //check X [] X X
+            if (board[c+1][r-1] == 0            &&
+                board[c][r]     == computer_num &&
+                board[c+2][r-2] == computer_num &&
+                board[c+3][r-3] == computer_num &&
+                board[c+1][r] != 0)
+            {
+                return c+2;  //changed from 1?
+            }
+            //check [] X X X
+            if (board[c][r]     == 0                 &&
+                board[c+1][r+1] == computer_num      &&
+                board[c+2][r+2] == computer_num      &&
+                board[c+3][r+3] == computer_num)
+            {
+                if (r == 5 || board[c][r+1] != 0) return c+1; //changed from 3
+            }
+        }
+    }
+    return 8;
+}
+
+
+/*  End of file  */
+
+
+
+
+
+int easyBot()
+{
+   int board[BOARD_SIZE_HORIZ][BOARD_SIZE_VERT] = { {0} };
+   int player_num, computer_num;
+   int last_move;
+
+
+   /* Ask Alice if she wants to go first */
+   player_num = print_welcome();
+   if (player_num == 1) computer_num = 2;
+   else computer_num = 1;
+
+   /* If Alice wants to go first, let her make a move */
+   if (player_num == 1)
+   {
+      display_board(board);
+      last_move = player_move(board,player_num);
+      display_board(board);
+   }
+
+
+   /* The main loop */
+
+   while (1)
+   {
+      /* Make a computer move, then display the board */
+      last_move = best_move(board,computer_num);
+      printf("Computer moved in column: %d\n", last_move);
+      display_board(board);
+
+      /* Check whether the computer has won */
+      if (check_win_or_tie(board,last_move)) return 0;
+
+
+      /* Let Alice make a move, then display the board */
+      last_move = player_move(board,player_num);
+      display_board(board);
+
+      /* Check whether Alice has won */
+      if (check_win_or_tie(board,last_move)) return 0;
+
+
+   } /* end of while (1) */
+
+} /* end of main() */
+
+
+
