@@ -95,7 +95,7 @@ void reset() {
     timer[1]= 0.0;
 	for(int i = 0; i < row; i++) {
 		for(int j = 0; j < column; j++) {
-			board[i][j] = '0';
+			board[i][j] = 0;
 		}
 	}
 }
@@ -104,7 +104,7 @@ void reset() {
 int checkTaken( int x) {
    int y=5;
     do{
-        if(board[y][x]!='0'){y--;}
+        if(board[y][x]!=0){y--;}
         else{return y; }
     }while(y>=0);//if y is 6 the function will return -1 and the programmer will recall it from another x
     return -1;
@@ -125,7 +125,7 @@ void displayBoard() {
             printf("\t\t\t\t\t\t ");
       for(j=0;j< column;j++)
       {
-	      printf("|%c",board[i][j]);
+	      printf("|%d",board[i][j]);
 	      }
 	      printf("|\n");
 	      }
@@ -218,7 +218,7 @@ void makeTurn(enum player playerTurn) {
 	int validPos = 0;
 	int xCord = -1;
 	//Getting the character to be placed;
-	char characters[3] = {'1', '2', '\0'};
+	int characters[3] = {1, 2, '\0'};
 	do {
 		//input validation for X cord
 		do {
