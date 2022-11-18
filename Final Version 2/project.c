@@ -15,7 +15,7 @@ int count_time_for_player = 0;
 int count_time_for_computer = 0;
 
 
-//function 
+//function
 
 //requires: current board of integers and integer that indicates it is the computer's turn
 //effects: returns an integer that is the column chosen randomly by the computer to be used by the last_move variabel
@@ -40,7 +40,7 @@ bool check_win_or_tie_singleplayer(int board[][row], int last_move);
 bool is_column_full(int board[][row], int m);
 
 //requires: the current integer board - chosen column - integer relating to player number turn
-//effects: the last cell in the chosen column is transforemd from 0 to 1 or 2 depending on player_num 
+//effects: the last cell in the chosen column is transforemd from 0 to 1 or 2 depending on player_num
 void update_board(int board[][row], int m, int player_num);
 
 int check_winner(int board[][row], int last_move);
@@ -164,7 +164,7 @@ bool check_win_or_tie_singleplayer(int board[][row], int last_move){
 }
 
 int check_winner (int board[][row], int last_move) {
-	int r; 
+	int r;
 	for (int i=0; i<row; i++){
 		if (board[last_move-1][i]!=0){
 			r = i;
@@ -177,7 +177,7 @@ int check_winner (int board[][row], int last_move) {
 		count = 1;
 		temp = i;
 		for (int j=0; j<3; j++){
-			if (board[temp][r]!=0 && board[temp][r]==board[temp+1][r]) count++; 
+			if (board[temp][r]!=0 && board[temp][r]==board[temp+1][r]) count++;
 			temp++;
 		}
 		if (count == 4) return board[last_move-1][r];
@@ -193,9 +193,9 @@ int check_winner (int board[][row], int last_move) {
 		if (count == 4) return board[last_move-1][r];
 	}
 	//check diagonally
-	int diX, diY; 
-	int xLim, yLim; 
-	int stp; 
+	int diX, diY;
+	int xLim, yLim;
+	int stp;
 	for (int x=0; x<column; x++){
 		for (int y=0; y<row; y++){
 			diX = 1; diY = -1;
@@ -219,7 +219,7 @@ int check_winner (int board[][row], int last_move) {
 		}
 	}
 	return 0;
-}    
+}
 
 int best_move (int board[][row], int computer_num, int depth){
 
@@ -227,16 +227,16 @@ int best_move (int board[][row], int computer_num, int depth){
 	int minmaxBoard[column][row]={{0}};
 	int computer = 1, player = -1;
 
-	// copy the board 
+	// copy the board
 	for (int i=0; i<column; i++){
 		for (int j=0; j<row; j++){
-			if (board[i][j]==computer_num) minmaxBoard[i][j]=1; 
-			if (board[i][j]==player_num) minmaxBoard[i][j]=-1; 
+			if (board[i][j]==computer_num) minmaxBoard[i][j]=1;
+			if (board[i][j]==player_num) minmaxBoard[i][j]=-1;
 		}
 	}
 
-	int m, score; 
-	MinMax_Recur(1,computer,depth,minmaxBoard,&m,&score); 
+	int m, score;
+	MinMax_Recur(1,computer,depth,minmaxBoard,&m,&score);
 	update_board(board,m+1,computer_num);
 	return m+1;
 }
@@ -307,11 +307,11 @@ void MinMax_Recur(int MinMax, int player, int depth, int minmaxBoard[][row], int
 	int best_score = MinMax?-10000000:10000000;
 	int best_move = -1, y;
 	for (y = 0; y<column; y++){
-		if (minmaxBoard[y][0]!=0) continue; 
-		
+		if (minmaxBoard[y][0]!=0) continue;
+
 		int r = calcRow(minmaxBoard, y, player);
-		if (r == row) continue; 
-		
+		if (r == row) continue;
+
 		int s = Scoring(minmaxBoard);
 
 		if (s == (MinMax?1000000:-1000000)){
@@ -320,10 +320,10 @@ void MinMax_Recur(int MinMax, int player, int depth, int minmaxBoard[][row], int
 			minmaxBoard[y][r] = 0;
 			break;
 		}
-		
+
 		int recurMove, recurScore;
 		if (depth>1)
-			MinMax_Recur(!MinMax, player==1?-1:1, depth-1, minmaxBoard, &recurMove, &recurScore); 
+			MinMax_Recur(!MinMax, player==1?-1:1, depth-1, minmaxBoard, &recurMove, &recurScore);
 		else {
 			recurMove = -1;
 			recurScore = s;
@@ -355,19 +355,35 @@ void MinMax_Recur(int MinMax, int player, int depth, int minmaxBoard[][row], int
 
 int main() {
    int board[column][row] = { {0} };
-   int mode_choice;
     int player_num, computer_num;
     int last_move; int choice;
 	//char C;
-	do{
-   printf("*** Welcome to the Connect Four game!!! ***\n");
+	printf("*** Welcome to the Connect Four game!!! ***\n");
    printf("Choose Mode: \n");
    printf("[1] SinglePLayer\n");
    printf("[2] MultiPLayer\n");
-   scanf("%d", &mode_choice);
-	}while(mode_choice!=1 || mode_choice!=2);
+char mode_choice = 'c';  //Initializes c to a non-digit so isdigit(c) returns false
+    int x = 0;
 
-   if (mode_choice == 1){
+    /* the loop will repeat until the player enters a digit */
+    while (!isdigit(mode_choice))
+    {
+        printf("Please enter your move: ");
+
+        mode_choice = getchar();
+
+        x = mode_choice - '0';
+    while (getchar() != '\n') { } //clears stdin
+        if (x <1 || x>2)
+        {
+            printf("\nNot a valid move. Enter a column number!\n");
+            mode_choice = 'c';       //reset c to a non-digit to continue looping
+                           //in case the user entered a digit that was invalid
+        }
+
+    }
+
+   if (x == 1){
     //Single Player
 
     //choosing difficulty
@@ -415,7 +431,7 @@ int main() {
         last_move = player_move(board,player_num);
         display_board(board);
     }
-    
+
     while (1)
     {
 		// if the player the least diffuclty to train as a beginner - random movies will be done by the computer
@@ -450,7 +466,7 @@ int main() {
 			return 0;
 		}
 
-    } 
+    }
     } //End Single Player
 
     //Multiplayer
@@ -473,7 +489,7 @@ int main() {
 
 		if (player_num == 1)
 		{
-			
+
 			display_board(board);
 			//clock_t start_for_player_one = clock();
 			last_move = player_move(board,player_num);
@@ -505,7 +521,7 @@ int main() {
     }
 
    return 0;
-   
+
 
 }
 
