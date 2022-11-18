@@ -604,7 +604,6 @@ int main()
 
         if (player_num == 1)
         {
-
             display_board(board);
             // clock_t start_for_player_one = clock();
             last_move = player_move(board, player_num);
@@ -613,19 +612,19 @@ int main()
         }
         while (1)
         {
-
             display_board(board);
-            // clock_t start_for_player_two = clock();
-            last_move = player_move(board, player_num);
-            // clock_t end_for_player_two = clock();
+            // clock_t start_for_player_one = clock();
+            last_move = player_move(board, computer_num);
+            // clock_t end_for_player_one = clock();
             display_board(board);
 
             if (check_win_or_tie(board, last_move))
                 return 0;
 
-            // clock_t start_for_player_one = clock();
-            last_move = player_move(board, computer_num);
-            // clock_t end_for_player_one = clock();
+            display_board(board);
+            // clock_t start_for_player_two = clock();
+            last_move = player_move(board, player_num);
+            // clock_t end_for_player_two = clock();
             display_board(board);
 
             if (check_win_or_tie(board, last_move))
