@@ -43,29 +43,18 @@ bool is_column_full(int board[][row], int m);
 //effects: the last cell in the chosen column is transforemd from 0 to 1 or 2 depending on player_num
 void update_board(int board[][row], int m, int player_num);
 
-//requires: the current integer board and the last move done by either the computer or player / player 1 or player 2
-//effects: after checking wither vertically, horizontally, or diagonally (both), returns an integer 0 - 1 - 2 -> 1 -2 are returned if there is a winner and 0 is returned if there is no winner 
 int check_winner(int board[][row], int last_move);
 
-//requires: the current integer board - the depth of the tree - the computer_num integer either 1 or 2
-//effects: returs the best column to be used by the computer to win or block the player from winning
 int best_move(int board[][row], int computer_num, int depth);
 
 #endif
-//requires: a integer score board same dimensions as main board
-//effects: returns the score of this score board
+
 int scoring(int score[][row]);
 
-//requires: integer MinMax either 1 or 0 (to be used as for conditional statements) -reference to the column and score that need to be changed later on - a board of integers that are the virtual boards that are created to check the best move that has same dimensions as the main board - the selected depth of the tree - integer :the  one that is playing either 1 or 2 
-//effects: provides the value of the best column to be filled by the computer and the best score by mutating the column and score variables that are passed by reference
 void MinMax_Recur(int MinMax, int player, int depth, int minmaxBoard[][row], int *m, int *score);
 
-//requires: the current integer board - the chosen column as integer between 1 and 7 - the player number 1 or 2
-//effects: returns the number of the row that is the last empty cell in the chosen column
 int calcRow(int board[][row], int col, int player);
 
-//requires: the current integer board 
-//effects: prints the current board
 void display_board(int board[][row]);
 
 void display_board(int board[][row]){
@@ -382,12 +371,13 @@ char mode_choice = 'c';  //Initializes c to a non-digit so isdigit(c) returns fa
         printf("Please enter your move: ");
 
         mode_choice = getchar();
+        printf("%c",mode_choice);
 
         x = mode_choice - '0';
     while (getchar() != '\n') { } //clears stdin
         if (x <1 || x>2)
         {
-            printf("\nNot a valid move. Enter a column number!\n");
+            printf("\nNot a valid move. Enter mode number!\n");
             mode_choice = 'c';       //reset c to a non-digit to continue looping
                            //in case the user entered a digit that was invalid
         }
@@ -403,7 +393,29 @@ char mode_choice = 'c';  //Initializes c to a non-digit so isdigit(c) returns fa
     printf("[1] Easy\n");
     printf("[2] Medium\n");
     printf("[3] Hard\n");
-    scanf("%d", &choice);
+    char mode_choice1 = 'c';  //Initializes c to a non-digit so isdigit(c) returns false
+    int y = 0;
+
+    /* the loop will repeat until the player enters a digit */
+    while (!isdigit(mode_choice1))
+    {
+        printf("Please enter the Level: ");
+
+        mode_choice1 = getchar();
+        printf("%c",mode_choice1);
+
+        y = mode_choice1 - '0';
+    while (getchar() != '\n') { } //clears stdin
+        if (y <0 || y>3)
+        {
+            printf("\nNot a valid move. Enter a level number!\n");
+            mode_choice1 = 'c';       //reset c to a non-digit to continue looping
+                           //in case the user entered a digit that was invalid
+        }
+
+    }
+    choice=y;
+
 
 	//if choice is 0, random moves will be made by the computer
 	if (choice == 1){
